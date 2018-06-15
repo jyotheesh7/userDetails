@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.useronetoone.exception.UserNotFoundException;
 import com.useronetoone.mapper.UserRecordMapper;
 import com.useronetoone.model.UserAddress;
 import com.useronetoone.model.UserDetails;
@@ -57,7 +58,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDetailsDTO getUser(Integer id) {
+	public UserDetailsDTO getUser(Integer id) throws UserNotFoundException {
 
 		Optional<UserDetails> userDetailsResult = userRepository.findById(id);
 
@@ -67,18 +68,18 @@ public class UserServiceImpl implements UserService {
 							.get());
 		} else {
 
-			return null;
+			throw new UserNotFoundException("User Not Found!") ;
 		}
 
 	}
 
 	@Override
-	public UserDetailsDTO updateUser(UserDetailsDTO userDetailsDto) {
+	public UserDetailsDTO updateUser(UserDetailsDTO userDetailsDto) throws UserNotFoundException {
 
 		UserDetails userDetails = this.userRecordMapper
 				.userDetailsDTOToUserDetails(userDetailsDto);
 
-		List<UserAddress> userAddresslist1 = new ArrayList<UserAddress>();
+		List<UserAddress> userAddresslist1 = new ArrayList<>();
 
 		for (UserAddress userAddresslist : userDetails.getUserAddress()) {
 			UserAddress userAddress = new UserAddress();
@@ -101,19 +102,21 @@ public class UserServiceImpl implements UserService {
 			return this.userRecordMapper
 					.userCustomerRecordToCustomerRecordDto(userDetailsResult);
 
+		}else{
+			throw new UserNotFoundException("User Not Found!");
 		}
-		return null;
+	
 	}
 
 	@Override
-	public Boolean deleteUser(Integer id) {
+	public Boolean deleteUser(Integer id) throws UserNotFoundException {
 		try {
 			userRepository.deleteById(id);
 
 			return true;
 		} catch (Exception e) {
 
-			return false;
+			throw new UserNotFoundException("User Not Found!");
 		}
 
 	}
